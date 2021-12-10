@@ -1,30 +1,35 @@
-# -*- coding: utf-8 -*-
-import click
-import logging
-from pathlib import Path
-from dotenv import find_dotenv, load_dotenv
+import os
 
 
-@click.command()
-@click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
-    """
-    logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
+def traverse_dir(path: os.path, extension: str = 'jpg') -> None:
+    # Traverse different class directories within test/train directory
+    for directory in os.listdir(path):
+        if directory.find('.') == -1:
+            assign_seq_file_names(os.path.join(path, directory))
+            change_img_extension(os.path.join(path, directory), extension)
+
+
+def change_img_extension(path: os.path, extension: str) -> None:
+    # Change the extension of images in the dataset to {extension}
+    for img_name in os.listdir(path):
+        if img_name.find('.') != 0:
+            new_img_name = img_name[0:img_name.find('.')] + f'.{extension}'
+            os.rename(os.path.join(path, img_name), os.path.join(path, new_img_name))
+
+
+def assign_seq_file_names(path: os.path) -> None:
+    # Rename images in the dataset so that they have sequential file names
+    print(sorted(os.listdir(path)))
+    for num, file_name in enumerate(sorted(os.listdir(path))):
+        if file_name.find('.') != 0:
+            new_file_name = f'{num}.jpg'
+            os.rename(os.path.join(path, file_name), os.path.join(path, new_file_name))
 
 
 if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_fmt)
+    train_path = './data/train'
+    test_path = './data/test'
+    extn = 'jpg'
 
-    # not used in this stub but often useful for finding various files
-    project_dir = Path(__file__).resolve().parents[2]
-
-    # find .env automagically by walking up directories until it's found, then
-    # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
-
-    main()
+    traverse_dir(train_path, extn)
+    traverse_dir(test_path, extn)
