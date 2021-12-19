@@ -41,7 +41,7 @@ def split_into_test_train(data_path: os.path, test_path: os.path, test_size: flo
                     shutil.move(os.path.join(source, file), os.path.join(dest, file))
 
 
-def resize_img(path: os.path, size: int = 32) -> None:
+def resize_img(path: os.path, size: int = 224) -> None:
     # Resize images in the dataset to {size}
     for img_name in os.listdir(path):
         if img_name.find('.') != 0:
